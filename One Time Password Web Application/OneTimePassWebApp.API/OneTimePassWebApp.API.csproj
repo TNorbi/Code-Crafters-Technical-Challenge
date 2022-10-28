@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <Folder Include="Data\Requests\Users\" />
-    <Folder Include="Data\Responses\Users\" />
   </ItemGroup>
 
 </Project>
