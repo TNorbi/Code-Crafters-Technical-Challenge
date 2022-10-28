@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OneTimePassWebApp.API.Data.Requests.Users;
 using OneTimePassWebApp.API.Data.Responses.Users;
 using OneTimePassWebApp.API.Services.Users;
 using OneTimePassWebApp.API.Utils;
@@ -86,6 +87,22 @@ namespace OneTimePassWebApp.API.Controllers
 
                 return StatusCode(301, exceptionResponse);
             }
+        }
+
+        [HttpPost("register-new-user")]
+        public async Task<IActionResult> registerNewUser([FromBody] UserRequest userRequest){
+
+            if (String.IsNullOrEmpty(userRequest.UserName))
+            {
+                UserResponse userResponse = new UserResponse
+                {
+                    Code = 300,
+                    Message = APIErrorCodes.
+                }
+                return StatusCode(300, errorResponse);
+            }
+
+            return Ok();
         }
     }
 }
