@@ -41,11 +41,11 @@ namespace OneTimePassWebApp.API.Repositories.Users
             }
         }
 
-        public async Task<Data.Models.Users?> getUserByUsername(string userName)
+        public async Task<IEnumerable<Data.Models.Users>?> getUserByUsername(string userName)
         {
             try
             {
-                var result = await _context.Users.FindAsync(userName);
+                var result = await _context.Users.Where(x=> x.UserName == userName).ToListAsync();
 
                 return result;
 

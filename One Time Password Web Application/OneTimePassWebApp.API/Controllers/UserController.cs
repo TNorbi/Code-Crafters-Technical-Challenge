@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OneTimePassWebApp.API.Data.Responses.Users;
 using OneTimePassWebApp.API.Services.Users;
 using OneTimePassWebApp.API.Utils;
+using System.ComponentModel.DataAnnotations;
 
 namespace OneTimePassWebApp.API.Controllers
 {
@@ -41,45 +42,31 @@ namespace OneTimePassWebApp.API.Controllers
         }
 
         [HttpGet("get-user-by-username")]
-        public async Task<IActionResult> getUserByUsername([FromHeader] string userName)
+        public async Task<IActionResult> getUserByUsername([Required][FromHeader] string userName)
         {
-            if(String.IsNullOrEmpty(userName))
-            {
-                UserResponse error = new UserResponse { Code = 300, Message = APIErrorCodes.MISSING_HEADER_ERROR_MESSAGE + "Username" };
-
-                return StatusCode(300, error);
-            }
-
             try
             {
-                UserResponse response = await _userService.getUserByUsername(userName);
+                AllUsersResponse response = await _userService.getUserByUsername(userName);
 
-                if(response.User != null)
+                if(response.Users != null)
                 {
                     return Ok(response);
                 }
                 
-                return StatusCode(301, response);
+                return StatusCode(300, response);
 
             }catch(Exception e)
             {
                 UserResponse exceptionResponse = new UserResponse
-                { Code = 302, Message = APIErrorCodes.GET_USER_BY_USERNAME_REQUEST_EXCEPTION_MESSAGE + e.Message };
+                { Code = 301, Message = APIErrorCodes.GET_USER_BY_USERNAME_REQUEST_EXCEPTION_MESSAGE + e.Message };
 
-                return StatusCode(302, exceptionResponse);
+                return StatusCode(301, exceptionResponse);
             }
         }
 
         [HttpGet("get-user-by-userid")]
-        public async Task<IActionResult> getUserByUserID([FromHeader] int? userID)
+        public async Task<IActionResult> getUserByUserID([Required][FromHeader] int userID)
         {
-            if (userID == null)
-            {
-                UserResponse error = new UserResponse { Code = 300, Message = APIErrorCodes.MISSING_HEADER_ERROR_MESSAGE + "UserID" };
-
-                return StatusCode(300, error);
-            }
-
             try
             {
                 UserResponse response = await _userService.getUserById((int)userID);
@@ -89,15 +76,15 @@ namespace OneTimePassWebApp.API.Controllers
                     return Ok(response);
                 }
 
-                return StatusCode(301, response);
+                return StatusCode(300, response);
 
             }
             catch (Exception e)
             {
                 UserResponse exceptionResponse = new UserResponse
-                { Code = 302, Message = APIErrorCodes.GET_USER_BY_USERNAME_REQUEST_EXCEPTION_MESSAGE + e.Message };
+                { Code = 301, Message = APIErrorCodes.GET_USER_BY_USERNAME_REQUEST_EXCEPTION_MESSAGE + e.Message };
 
-                return StatusCode(302, exceptionResponse);
+                return StatusCode(301, exceptionResponse);
             }
         }
     }

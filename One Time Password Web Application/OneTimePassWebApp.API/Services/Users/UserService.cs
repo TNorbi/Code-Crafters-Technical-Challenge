@@ -56,7 +56,7 @@ namespace OneTimePassWebApp.API.Services.Users
                     response.Message = APISuccessCodes.GET_USER_BY_USERID_SUCCES_MESSAGE;
                 }
                 else {
-                    response.Code = 301;
+                    response.Code = 300;
                     response.Message = APIErrorCodes.GET_USER_BY_USERID_NULL_MESSAGE;
                 }
 
@@ -68,22 +68,22 @@ namespace OneTimePassWebApp.API.Services.Users
             }
         }
 
-        public async Task<UserResponse> getUserByUsername(string userName)
+        public async Task<AllUsersResponse> getUserByUsername(string userName)
         {
-            UserResponse response = new UserResponse();
+            AllUsersResponse response = new AllUsersResponse();
 
             try
             {
-                response.User = await _userRepository.getUserByUsername(userName);
+                response.Users = await _userRepository.getUserByUsername(userName);
 
-                if (response.User != null)
+                if (response.Users != null && response.Users.Count() > 0)
                 {
                     response.Code = 200;
                     response.Message = APISuccessCodes.GET_USER_BY_USERNAME_SUCCES_MESSAGE;
                 }
                 else
                 {
-                    response.Code = 301;
+                    response.Code = 300;
                     response.Message = APIErrorCodes.GET_USER_BY_USERNAME_NULL_MESSAGE;
                 }
 
