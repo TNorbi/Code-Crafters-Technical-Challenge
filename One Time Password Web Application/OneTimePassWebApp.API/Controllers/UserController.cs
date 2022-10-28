@@ -89,20 +89,48 @@ namespace OneTimePassWebApp.API.Controllers
             }
         }
 
-        /*[HttpPost("register-new-user")]
+        [HttpPost("register-new-user")]
         public async Task<IActionResult> registerNewUser([FromBody] UserRequest userRequest){
 
             if (String.IsNullOrEmpty(userRequest.UserName))
             {
-                UserResponse userResponse = new UserResponse
+                UserResponse errorResponse = new UserResponse
                 {
                     Code = 300,
-                    Message = APIErrorCodes.
-                }
+                    Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "UserName"
+                };
+
                 return StatusCode(300, errorResponse);
             }
 
-            return Ok();
-        }*/
+            if (String.IsNullOrEmpty(userRequest.Password))
+            {
+                UserResponse errorResponse = new UserResponse
+                {
+                    Code = 301,
+                    Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "Password"
+                };
+
+                return StatusCode(301, errorResponse);
+            }
+
+            try
+            {
+
+                UserResponse response = await _userService.registerNewUser(userRequest);
+
+                return Ok(response);
+
+            }catch(Exception e)
+            {
+                UserResponse responseException = new UserResponse
+                {
+                    Code = 302,
+                    Message = APIErrorCodes.REGISTER_NEW_USER_EXCEPTION_MESSAGE + e.Message
+                };
+
+                return StatusCode(302, responseException);
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using OneTimePassWebApp.API.Data.Responses.Users;
+﻿using OneTimePassWebApp.API.Data.Requests.Users;
+using OneTimePassWebApp.API.Data.Responses.Users;
 
 namespace OneTimePassWebApp.API.Services.Users
 {
@@ -8,5 +9,7 @@ namespace OneTimePassWebApp.API.Services.Users
 
         public Task<UserResponse> getUserById(int userId);
         public Task<UserResponse> getUserByUsername(string userName);
+
+        public Task<UserResponse> registerNewUser(UserRequest userRequest);
     }
 }

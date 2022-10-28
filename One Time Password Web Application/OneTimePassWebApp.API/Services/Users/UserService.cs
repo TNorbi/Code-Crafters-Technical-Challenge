@@ -1,4 +1,5 @@
 ﻿using OneTimePassWebApp.API.Data.Models;
+using OneTimePassWebApp.API.Data.Requests.Users;
 using OneTimePassWebApp.API.Data.Responses.Users;
 using OneTimePassWebApp.API.Repositories.Users;
 using OneTimePassWebApp.API.Utils;
@@ -91,6 +92,35 @@ namespace OneTimePassWebApp.API.Services.Users
 
             }
             catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<UserResponse> registerNewUser(UserRequest userRequest)
+        {
+            Data.Models.Users NewUser = new Data.Models.Users { UserName = userRequest.UserName, Password = userRequest.Password };
+
+            UserResponse response = new UserResponse();
+
+            try
+            {
+                response.User = await _userRepository.registerNewUser(NewUser);
+                
+                if(response.User != null)
+                {
+                    response.Code=200;
+                    response.Message = APISuccessCodes.
+                }
+                else
+                {
+                    response.Code = 302;
+                    response.Message = APIErrorCodes.
+                }
+
+                return response;
+
+            }catch(Exception e)
             {
                 throw new Exception(e.Message);
             }

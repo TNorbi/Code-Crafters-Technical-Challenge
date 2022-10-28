@@ -55,5 +55,35 @@ namespace OneTimePassWebApp.API.Repositories.Users
                 throw new Exception(e.Message);
             }
         }
+
+        public async Task<Data.Models.Users?> registerNewUser(Data.Models.Users newUser)
+        {
+            try
+            {
+                var searchPassword = await _context.Users.Where(x => x.Password == newUser.Password).FirstOrDefaultAsync();
+
+                if(searchPassword != null)
+                {
+                    //jelszo letezik, le kell kezeljem valahogy
+                }
+
+                var searchUsername = await _context.Users.Where(x => x.UserName == newUser.UserName).FirstOrDefaultAsync();
+
+                if (searchUsername != null)
+                {
+                    //felhasznalonev letezik, le kell kezeljem valahogy
+                }
+
+                var response = _context.Users.AddAsync(newUser);
+
+                await _context.SaveChangesAsync();
+
+                return response.Result.Entity;
+
+            }catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
     }
 }

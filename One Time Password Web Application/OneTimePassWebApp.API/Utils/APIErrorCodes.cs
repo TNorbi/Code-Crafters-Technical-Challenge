@@ -8,5 +8,7 @@
         public static readonly string GET_USER_BY_USERNAME_REQUEST_EXCEPTION_MESSAGE = "GET_USER_BY_USERNAME request was unsuccessful, with the following error message: ";
         public static readonly string GET_USER_BY_USERID_NULL_MESSAGE = "User with given userID doesn't exist in database";
         public static readonly string GET_USER_BY_USERNAME_NULL_MESSAGE = "User with given Username doesn't exist in database";
+        public static readonly string MISSING_BODY_ERROR_MESSAGE = "The following body value is missing: ";
+        public static readonly string REGISTER_NEW_USER_EXCEPTION_MESSAGE = "REGISTER_NEW_USER request was unsuccessful, with the following error message: ";
     }
 }
