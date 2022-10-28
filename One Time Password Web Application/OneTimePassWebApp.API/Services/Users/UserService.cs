@@ -68,15 +68,15 @@ namespace OneTimePassWebApp.API.Services.Users
             }
         }
 
-        public async Task<AllUsersResponse> getUserByUsername(string userName)
+        public async Task<UserResponse> getUserByUsername(string userName)
         {
-            AllUsersResponse response = new AllUsersResponse();
+            UserResponse response = new UserResponse();
 
             try
             {
-                response.Users = await _userRepository.getUserByUsername(userName);
+                response.User = await _userRepository.getUserByUsername(userName);
 
-                if (response.Users != null && response.Users.Count() > 0)
+                if (response.User != null)
                 {
                     response.Code = 200;
                     response.Message = APISuccessCodes.GET_USER_BY_USERNAME_SUCCES_MESSAGE;

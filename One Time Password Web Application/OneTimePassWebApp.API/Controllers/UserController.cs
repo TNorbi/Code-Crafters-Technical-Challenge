@@ -46,9 +46,9 @@ namespace OneTimePassWebApp.API.Controllers
         {
             try
             {
-                AllUsersResponse response = await _userService.getUserByUsername(userName);
+                UserResponse response = await _userService.getUserByUsername(userName);
 
-                if(response.Users != null)
+                if(response.User != null)
                 {
                     return Ok(response);
                 }
