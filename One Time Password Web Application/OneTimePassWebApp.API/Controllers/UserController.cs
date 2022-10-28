@@ -89,7 +89,7 @@ namespace OneTimePassWebApp.API.Controllers
             }
         }
 
-        [HttpPost("register-new-user")]
+        /*[HttpPost("register-new-user")]
         public async Task<IActionResult> registerNewUser([FromBody] UserRequest userRequest){
 
             if (String.IsNullOrEmpty(userRequest.UserName))
@@ -103,6 +103,6 @@ namespace OneTimePassWebApp.API.Controllers
             }
 
             return Ok();
-        }
+        }*/
     }
 }
