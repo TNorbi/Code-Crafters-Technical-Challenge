@@ -1,4 +1,5 @@
-﻿using OneTimePassWebApp.API.Data.Responses.Users;
+﻿using OneTimePassWebApp.API.Data.Models;
+using OneTimePassWebApp.API.Data.Responses.Users;
 using OneTimePassWebApp.API.Repositories.Users;
 using OneTimePassWebApp.API.Utils;
 
@@ -36,6 +37,60 @@ namespace OneTimePassWebApp.API.Services.Users
                 
 
             }catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<UserResponse> getUserById(int userId)
+        {
+            UserResponse response = new UserResponse();
+
+            try
+            {
+                response.User = await _userRepository.getUserByUserId(userId);
+
+                if (response.User != null)
+                {
+                    response.Code = 200;
+                    response.Message = APISuccessCodes.GET_USER_BY_USERID_SUCCES_MESSAGE;
+                }
+                else {
+                    response.Code = 301;
+                    response.Message = APIErrorCodes.GET_USER_BY_USERID_NULL_MESSAGE;
+                }
+
+                return response;
+
+            }catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<UserResponse> getUserByUsername(string userName)
+        {
+            UserResponse response = new UserResponse();
+
+            try
+            {
+                response.User = await _userRepository.getUserByUsername(userName);
+
+                if (response.User != null)
+                {
+                    response.Code = 200;
+                    response.Message = APISuccessCodes.GET_USER_BY_USERNAME_SUCCES_MESSAGE;
+                }
+                else
+                {
+                    response.Code = 301;
+                    response.Message = APIErrorCodes.GET_USER_BY_USERNAME_NULL_MESSAGE;
+                }
+
+                return response;
+
+            }
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }

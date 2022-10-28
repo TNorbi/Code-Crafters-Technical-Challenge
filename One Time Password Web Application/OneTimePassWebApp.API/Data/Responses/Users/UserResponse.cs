@@ -1,9 +1,9 @@
 ﻿namespace OneTimePassWebApp.API.Data.Responses.Users
 {
-    public class AllUsersResponse
+    public class UserResponse
     {
         public int Code { get; set; }
         public string Message { get; set; }
-        public IEnumerable<Data.Models.Users>? Users { get; set; }
+        public Data.Models.Users? User { get; set; }
     }
 }

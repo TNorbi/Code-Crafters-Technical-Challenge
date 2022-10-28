@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OneTimePassWebApp.API.Data;
+using OneTimePassWebApp.API.Data.Models;
 
 namespace OneTimePassWebApp.API.Repositories.Users
 {
@@ -21,6 +22,35 @@ namespace OneTimePassWebApp.API.Repositories.Users
                 return users;
 
             }catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<Data.Models.Users?> getUserByUserId(int userId)
+        {
+            try
+            {
+                var result = await _context.Users.FindAsync(userId);
+
+                return result;
+
+            }catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<Data.Models.Users?> getUserByUsername(string userName)
+        {
+            try
+            {
+                var result = await _context.Users.FindAsync(userName);
+
+                return result;
+
+            }
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }

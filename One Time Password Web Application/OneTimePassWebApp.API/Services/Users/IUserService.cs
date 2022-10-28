@@ -5,5 +5,8 @@ namespace OneTimePassWebApp.API.Services.Users
     public interface IUserService
     {
         public Task<AllUsersResponse> getAllUsers();
+
+        public Task<UserResponse> getUserById(int userId);
+        public Task<UserResponse> getUserByUsername(string userName);
     }
 }
