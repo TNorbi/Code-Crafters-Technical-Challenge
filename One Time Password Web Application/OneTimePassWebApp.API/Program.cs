@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using OneTimePassWebApp.API.Data;
+using System;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +10,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Shall add IUserService, UserService, IUserRepository,UserRepository classes as Services (builder.Services.AddScope<IUserService, UserService>(); ) example
+
+// Add WebAppDbContext as a Service
+builder.Services.AddDbContext<WebAppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")));
 
 var app = builder.Build();
 
@@ -21,5 +30,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+//Initialize the Database with Default datas
+WebAppDbInitializer.Seed(app);
 
 app.Run();
