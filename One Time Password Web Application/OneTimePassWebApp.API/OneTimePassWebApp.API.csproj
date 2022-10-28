@@ -16,4 +16,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Requests\Users\" />
+    <Folder Include="Data\Responses\Users\" />
+  </ItemGroup>
+
 </Project>

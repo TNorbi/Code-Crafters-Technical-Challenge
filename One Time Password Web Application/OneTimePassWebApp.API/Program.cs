@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using OneTimePassWebApp.API.Data;
+using OneTimePassWebApp.API.Repositories.Users;
+using OneTimePassWebApp.API.Services.Users;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,8 +13,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Shall add IUserService, UserService, IUserRepository,UserRepository classes as Services (builder.Services.AddScope<IUserService, UserService>(); ) example
-
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Add WebAppDbContext as a Service
 builder.Services.AddDbContext<WebAppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")));
 
