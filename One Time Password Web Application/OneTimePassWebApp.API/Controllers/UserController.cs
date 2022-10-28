@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using OneTimePassWebApp.API.Data.Requests.Users;
 using OneTimePassWebApp.API.Data.Responses.Users;
 using OneTimePassWebApp.API.Services.Users;
@@ -27,14 +26,14 @@ namespace OneTimePassWebApp.API.Controllers
             {
                 AllUsersResponse response = await _userService.getAllUsers();
 
-                if(response.Users != null)
+                if (response.Users != null)
                 {
                     return Ok(response);
                 }
 
                 return StatusCode(300, response);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 AllUsersResponse exceptionResponse = new AllUsersResponse { Code = 301, Message = APIErrorCodes.GET_ALL_USERS_REQUEST_EXCEPTION_MESSAGE + e.Message };
 
@@ -49,14 +48,15 @@ namespace OneTimePassWebApp.API.Controllers
             {
                 UserResponse response = await _userService.getUserByUsername(userName);
 
-                if(response.User != null)
+                if (response.User != null)
                 {
                     return Ok(response);
                 }
-                
+
                 return StatusCode(300, response);
 
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 UserResponse exceptionResponse = new UserResponse
                 { Code = 301, Message = APIErrorCodes.GET_USER_BY_USERNAME_REQUEST_EXCEPTION_MESSAGE + e.Message };
@@ -90,7 +90,8 @@ namespace OneTimePassWebApp.API.Controllers
         }
 
         [HttpPost("register-new-user")]
-        public async Task<IActionResult> registerNewUser([FromBody] UserRequest userRequest){
+        public async Task<IActionResult> registerNewUser([FromBody] UserRequest userRequest)
+        {
 
             if (String.IsNullOrEmpty(userRequest.UserName))
             {
@@ -119,17 +120,71 @@ namespace OneTimePassWebApp.API.Controllers
 
                 UserResponse response = await _userService.registerNewUser(userRequest);
 
-                return Ok(response);
+                if (response.Code == 200)
+                {
+                    return Ok(response);
+                }
 
-            }catch(Exception e)
+                return StatusCode(response.Code, response);
+
+            }
+            catch (Exception e)
             {
                 UserResponse responseException = new UserResponse
                 {
-                    Code = 302,
+                    Code = 305,
                     Message = APIErrorCodes.REGISTER_NEW_USER_EXCEPTION_MESSAGE + e.Message
                 };
 
-                return StatusCode(302, responseException);
+                return StatusCode(305, responseException);
+            }
+        }
+
+        [HttpPost("login-user")]
+        public async Task<IActionResult> login([FromBody] UserRequest userRequest)
+        {
+            if (String.IsNullOrEmpty(userRequest.UserName))
+            {
+                UserResponse errorResponse = new UserResponse
+                {
+                    Code = 300,
+                    Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "UserName"
+                };
+
+                return StatusCode(300, errorResponse);
+            }
+
+            if (String.IsNullOrEmpty(userRequest.Password))
+            {
+                UserResponse errorResponse = new UserResponse
+                {
+                    Code = 301,
+                    Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "Password"
+                };
+
+                return StatusCode(301, errorResponse);
+            }
+
+            try
+            {
+                UserLoginResponse response = await _userService.loginUser(userRequest);
+
+                if (response.Code == 200)
+                {
+                    return Ok(response);
+                }
+
+                return StatusCode(response.Code, response);
+            }
+            catch (Exception e)
+            {
+                UserResponse exceptionResponse = new UserResponse
+                {
+                    Code = 303,
+                    Message = APIErrorCodes.LOGIN_USER_EXCEPTION_MESSAGE + e.Message
+                };
+
+                return StatusCode(303, exceptionResponse);
             }
         }
     }

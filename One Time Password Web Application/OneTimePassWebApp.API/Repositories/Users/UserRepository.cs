@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using OneTimePassWebApp.API.Data;
-using OneTimePassWebApp.API.Data.Models;
+using OneTimePassWebApp.API.Data.Models.DTOs.Users;
 
 namespace OneTimePassWebApp.API.Repositories.Users
 {
-    public class UserRepository: IUserRepository
+    public class UserRepository : IUserRepository
     {
-        private WebAppDbContext _context { get;}
+        private WebAppDbContext _context { get; }
 
         public UserRepository(WebAppDbContext context)
         {
@@ -21,7 +22,8 @@ namespace OneTimePassWebApp.API.Repositories.Users
 
                 return users;
 
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
@@ -35,7 +37,8 @@ namespace OneTimePassWebApp.API.Repositories.Users
 
                 return result;
 
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
@@ -45,7 +48,7 @@ namespace OneTimePassWebApp.API.Repositories.Users
         {
             try
             {
-                var result = await _context.Users.Where(x=> x.UserName == userName).FirstOrDefaultAsync();
+                var result = await _context.Users.Where(x => x.UserName == userName).FirstOrDefaultAsync();
 
                 return result;
 
@@ -60,18 +63,19 @@ namespace OneTimePassWebApp.API.Repositories.Users
         {
             try
             {
+
                 var searchPassword = await _context.Users.Where(x => x.Password == newUser.Password).FirstOrDefaultAsync();
 
-                if(searchPassword != null)
+                if (searchPassword != null)
                 {
-                    //jelszo letezik, le kell kezeljem valahogy
+                    return new Data.Models.Users { UserId = -1 };
                 }
 
                 var searchUsername = await _context.Users.Where(x => x.UserName == newUser.UserName).FirstOrDefaultAsync();
 
                 if (searchUsername != null)
                 {
-                    //felhasznalonev letezik, le kell kezeljem valahogy
+                    return new Data.Models.Users { UserId = -2 };
                 }
 
                 var response = _context.Users.AddAsync(newUser);
@@ -80,7 +84,42 @@ namespace OneTimePassWebApp.API.Repositories.Users
 
                 return response.Result.Entity;
 
-            }catch(Exception e)
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<UserLoginDTO?> loginUser(Data.Models.Users user)
+        {
+            try
+            {
+                PasswordHasher<string> passwordHasher = new PasswordHasher<string>();
+
+                var searchUser = await _context.Users.Where(x => x.UserName == user.UserName).FirstOrDefaultAsync();
+
+                if (searchUser != null)
+                {
+                    var result = passwordHasher.VerifyHashedPassword(user.UserName, searchUser.Password, user.Password);
+
+                    if(result == PasswordVerificationResult.Success)
+                    {
+                        UserLoginDTO userLoginDTO = new UserLoginDTO
+                        {
+                            UserName = searchUser.UserName,
+                            UserID = searchUser.UserId
+                        };
+
+                        return userLoginDTO;
+                    }
+                    
+                }
+
+                return null;
+
+            }
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
