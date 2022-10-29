@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OneTimePassWebApp.API.Data;
 using OneTimePassWebApp.API.Data.Models.DTOs.Users;
+using System.Security.Cryptography;
 
 namespace OneTimePassWebApp.API.Repositories.Users
 {
@@ -103,7 +104,7 @@ namespace OneTimePassWebApp.API.Repositories.Users
                 {
                     var result = passwordHasher.VerifyHashedPassword(user.UserName, searchUser.Password, user.Password);
 
-                    if(result == PasswordVerificationResult.Success)
+                    if (result == PasswordVerificationResult.Success)
                     {
                         UserLoginDTO userLoginDTO = new UserLoginDTO
                         {
@@ -113,7 +114,7 @@ namespace OneTimePassWebApp.API.Repositories.Users
 
                         return userLoginDTO;
                     }
-                    
+
                 }
 
                 return null;
@@ -131,7 +132,8 @@ namespace OneTimePassWebApp.API.Repositories.Users
             {
                 var result = await _context.Users.FindAsync(userID);
 
-                if(result == null)
+                //user with given userid doesn't exists
+                if (result == null)
                 {
                     return null;
                 }
@@ -143,7 +145,8 @@ namespace OneTimePassWebApp.API.Repositories.Users
 
                 return OTP;
 
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
@@ -151,7 +154,67 @@ namespace OneTimePassWebApp.API.Repositories.Users
 
         private string createNewOTP()
         {
-            return "";
+            string alphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            string small_alphabets = "abcdefghijklmnopqrstuvwxyz";
+            string numbers = "1234567890";
+
+            string characters = alphabets + small_alphabets + numbers;
+
+            int length = 5;
+            string OTP = string.Empty;
+
+            for (int i = 0; i < length; i++)
+            {
+                string character = string.Empty;
+                do
+                {
+                    int index = new Random().Next(0, characters.Length);
+                    character = characters.ToCharArray()[index].ToString();
+                } while (OTP.IndexOf(character) != -1);
+
+                OTP += character;
+            }
+
+            string? OTP_encrypted = encryptOTP(OTP);
+
+            if (OTP_encrypted == null)
+            {
+                throw new Exception("ERROR at createNewOTP method: OTP encrypted is null!");
+            }
+
+            return OTP_encrypted;
+        }
+
+        private string? encryptOTP(string OTP)
+        {
+            byte[] encryptedOTP;
+
+            //Using the built-in AES Encryption for OTP
+            using (var aes = Aes.Create())
+            {
+                ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    // Create crypto stream using the CryptoStream class. This class is the key to encryption    
+                    // and encrypts and decrypts data from any given stream. In this case, we will pass a memory stream    
+                    // to encrypt    
+                    using (CryptoStream cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
+                    {
+                        // Create StreamWriter and write data to a stream    
+                        using (StreamWriter streamWriter = new StreamWriter(cryptoStream))
+                        {
+                            streamWriter.Write(OTP);
+                        }
+
+                        encryptedOTP = memoryStream.ToArray();
+                    }
+                }
+            }
+
+            var result = System.Text.Encoding.UTF8.GetString(encryptedOTP);
+
+            return result;
         }
     }
 }
