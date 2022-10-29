@@ -124,5 +124,34 @@ namespace OneTimePassWebApp.API.Repositories.Users
                 throw new Exception(e.Message);
             }
         }
+
+        public async Task<string?> generateOTP(int userID)
+        {
+            try
+            {
+                var result = await _context.Users.FindAsync(userID);
+
+                if(result == null)
+                {
+                    return null;
+                }
+
+                //valahogy igy kene asszem
+                //string OTP = createNewOTP(result.email)
+
+                string OTP = createNewOTP();
+
+                return OTP;
+
+            }catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        private string createNewOTP()
+        {
+            return "";
+        }
     }
 }

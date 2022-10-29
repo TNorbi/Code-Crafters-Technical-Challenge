@@ -185,5 +185,35 @@ namespace OneTimePassWebApp.API.Services.Users
                 throw new Exception(e.Message);
             }
         }
+
+        public async Task<OneTimePasswordResponse> generateOTP(OneTimePasswordRequest request)
+        {
+            OneTimePasswordResponse response = new OneTimePasswordResponse();
+
+            try
+            {
+                response.OTP = await _userRepository.generateOTP(request.UserID);
+
+                if(String.IsNullOrEmpty(response.OTP))
+                {
+                    response.Code = 200;
+                    response.Message = APISuccessCodes.GENERATE_OTP_SUCCES_MESSAGE;
+                    DateTime expireDate = request.DateTime.AddSeconds(30);
+                    response.Timestamp = expireDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                }
+                else
+                {
+                    response.Code = 304;
+                    response.Message = APIErrorCodes.GET_USER_BY_USERID_NULL_MESSAGE;
+                    response.Timestamp = request.DateTime.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                }
+
+                return response;
+
+            }catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
     }
 }

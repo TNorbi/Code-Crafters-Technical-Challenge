@@ -10,5 +10,7 @@
         public Task<Data.Models.Users?> registerNewUser(Data.Models.Users newUser);
 
         public Task<Data.Models.DTOs.Users.UserLoginDTO?> loginUser(Data.Models.Users user);
+
+        public Task<String?> generateOTP(int userID);
     }
 }

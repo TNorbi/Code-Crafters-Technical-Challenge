@@ -187,5 +187,76 @@ namespace OneTimePassWebApp.API.Controllers
                 return StatusCode(303, exceptionResponse);
             }
         }
+
+        [HttpPost("generate-one-time-password")]
+        public async Task<IActionResult> generateOneTimePassword([FromBody] OneTimePasswordRequest request)
+        {
+            if (String.IsNullOrEmpty(request.UserID.ToString()))
+            {
+                OneTimePasswordResponse errorResponse = new OneTimePasswordResponse
+                {
+                    Code = 300,
+                    Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "UserID",
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(300, errorResponse);
+            }
+
+            if(request.UserID <= 0)
+            {
+                OneTimePasswordResponse errorResponse = new OneTimePasswordResponse
+                {
+                    Code = 301,
+                    Message = APIErrorCodes.GENERATE_OPT_USERID_NEGATIVE_ERROR_MESSAGE,
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(301, errorResponse);
+            }
+
+            if (String.IsNullOrEmpty(request.DateTime.ToString()))
+            {
+                OneTimePasswordResponse errorResponse = new OneTimePasswordResponse
+                {
+                    Code = 302,
+                    Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "DateTime",
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(302, errorResponse);
+            }
+
+            if(!DateTime.TryParse(request.DateTime.ToString(), out DateTime date))
+            {
+                OneTimePasswordResponse errorResponse = new OneTimePasswordResponse
+                {
+                    Code = 303,
+                    Message = APIErrorCodes.GENERATE_OTP_DATETIME_NOT_VALID_ERROR_MESSAGE,
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(303, errorResponse);
+            }
+
+            try
+            {
+                OneTimePasswordResponse response = await _userService.generateOTP(request);
+
+
+            }catch(Exception e)
+            {
+                OneTimePasswordResponse errorResponse = new OneTimePasswordResponse
+                {
+                    Code = 400,
+                    Message = APIErrorCodes.GENERATE_OTP_EXCEPTION_MESSAGE + e.Message,
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(400, errorResponse);
+            }
+
+            return Ok();
+        }
     }
 }

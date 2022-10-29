@@ -13,5 +13,7 @@ namespace OneTimePassWebApp.API.Services.Users
         public Task<UserResponse> registerNewUser(UserRequest userRequest);
 
         public Task<UserLoginResponse> loginUser(UserRequest request);
+
+        public Task<OneTimePasswordResponse> generateOTP(OneTimePasswordRequest request);
     }
 }
