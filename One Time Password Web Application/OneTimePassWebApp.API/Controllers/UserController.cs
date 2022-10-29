@@ -375,7 +375,14 @@ namespace OneTimePassWebApp.API.Controllers
 
             }catch(Exception e)
             {
-                throw new NotImplementedException(e.Message);
+                VerifyOTPResponse errorResponse = new VerifyOTPResponse
+                {
+                    Code = 500,
+                    Message = APIErrorCodes.VERIFY_OTP_EXCEPTION_MESSAGE + e.Message,
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(500, errorResponse);
             }
         }
     }

@@ -20,5 +20,6 @@
         public static readonly string GENERATE_OTP_EXCEPTION_MESSAGE = "GENERATE_OTP request was unsuccessful, with the following error message: ";
         public static readonly string VERIFY_OTP_WRONG_OTP_ERROR_MESSAGE = "Wrong OTP was given";
         public static readonly string VERIFY_OTP_DATETIME_EXPIRED_ERROR_MESSAGE = "OTP expired after 30s";
+        public static readonly string VERIFY_OTP_EXCEPTION_MESSAGE = "VERIFY_OTP request was unsuccessful, with the following error message: ";
     }
 }
