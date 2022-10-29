@@ -1,4 +1,6 @@
-﻿using OneTimePassWebApp.API.Data.Requests.Users;
+﻿using OneTimePassWebApp.API.Data.Requests.OTP;
+using OneTimePassWebApp.API.Data.Requests.Users;
+using OneTimePassWebApp.API.Data.Responses.OTP;
 using OneTimePassWebApp.API.Data.Responses.Users;
 
 namespace OneTimePassWebApp.API.Services.Users
@@ -15,5 +17,7 @@ namespace OneTimePassWebApp.API.Services.Users
         public Task<UserLoginResponse> loginUser(UserRequest request);
 
         public Task<OneTimePasswordResponse> generateOTP(OneTimePasswordRequest request);
+
+        public Task<VerifyOTPResponse> verifyOTP(OTPVerifyRequest request);
     }
 }

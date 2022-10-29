@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using OneTimePassWebApp.API.Data.Requests.OTP;
 using OneTimePassWebApp.API.Data.Requests.Users;
+using OneTimePassWebApp.API.Data.Responses.OTP;
 using OneTimePassWebApp.API.Data.Responses.Users;
 using OneTimePassWebApp.API.Repositories.Users;
 using OneTimePassWebApp.API.Utils;
@@ -194,7 +196,7 @@ namespace OneTimePassWebApp.API.Services.Users
             {
                 response.OTP = await _userRepository.generateOTP(request.UserID);
 
-                if(String.IsNullOrEmpty(response.OTP))
+                if(!String.IsNullOrEmpty(response.OTP))
                 {
                     response.Code = 200;
                     response.Message = APISuccessCodes.GENERATE_OTP_SUCCES_MESSAGE;
@@ -206,6 +208,49 @@ namespace OneTimePassWebApp.API.Services.Users
                     response.Code = 304;
                     response.Message = APIErrorCodes.GET_USER_BY_USERID_NULL_MESSAGE;
                     response.Timestamp = request.DateTime.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                }
+
+                return response;
+
+            }catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<VerifyOTPResponse> verifyOTP(OTPVerifyRequest request)
+        {
+            VerifyOTPResponse response = new VerifyOTPResponse();
+
+            try
+            {
+                response.Checkers = await _userRepository.verifyOTP(request);
+
+                if(response.Checkers == null)
+                {
+                    response.Code = 309;
+                    response.Message = APIErrorCodes.GET_USER_BY_USERID_NULL_MESSAGE;
+                    return response;
+                }
+
+
+                if (response.Checkers.IsOTP && !response.Checkers.isDateExpired)
+                {
+                    response.Code = 200;
+                    response.Message = APISuccessCodes.VERIFY_OTP_SUCCES_MESSAGE;
+                }
+                else
+                {
+                    if (response.Checkers.isDateExpired)
+                    {
+                        response.Code = 309;
+                        response.Message = APIErrorCodes.VERIFY_OTP_DATETIME_EXPIRED_ERROR_MESSAGE;
+                    }
+                    else
+                    {
+                        response.Code = 310;
+                        response.Message = APIErrorCodes.VERIFY_OTP_WRONG_OTP_ERROR_MESSAGE;
+                    }
                 }
 
                 return response;

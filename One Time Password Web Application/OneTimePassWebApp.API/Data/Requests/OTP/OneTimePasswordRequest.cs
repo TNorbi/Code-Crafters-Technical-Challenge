@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace OneTimePassWebApp.API.Data.Requests.Users
+namespace OneTimePassWebApp.API.Data.Requests.OTP
 {
     public class OneTimePasswordRequest
     {

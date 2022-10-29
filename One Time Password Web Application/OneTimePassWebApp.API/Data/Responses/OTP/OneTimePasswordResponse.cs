@@ -1,4 +1,4 @@
-﻿namespace OneTimePassWebApp.API.Data.Responses.Users
+﻿namespace OneTimePassWebApp.API.Data.Responses.OTP
 {
     public class OneTimePasswordResponse
     {

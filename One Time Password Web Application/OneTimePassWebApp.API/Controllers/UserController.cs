@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OneTimePassWebApp.API.Data.Requests.OTP;
 using OneTimePassWebApp.API.Data.Requests.Users;
+using OneTimePassWebApp.API.Data.Responses.OTP;
 using OneTimePassWebApp.API.Data.Responses.Users;
 using OneTimePassWebApp.API.Services.Users;
 using OneTimePassWebApp.API.Utils;
@@ -243,8 +245,16 @@ namespace OneTimePassWebApp.API.Controllers
             {
                 OneTimePasswordResponse response = await _userService.generateOTP(request);
 
+                if(response.Code == 200)
+                {
+                    return Ok(response);
+                }
 
-            }catch(Exception e)
+                //return StatusCode(response.Code, response); //response body doesn't appear for some reason, only the response code
+                return Ok(response);
+
+            }
+            catch(Exception e)
             {
                 OneTimePasswordResponse errorResponse = new OneTimePasswordResponse
                 {
@@ -255,8 +265,118 @@ namespace OneTimePassWebApp.API.Controllers
 
                 return StatusCode(400, errorResponse);
             }
+        }
 
-            return Ok();
+        [HttpPost("verify-one-time-password")]
+        public async Task<IActionResult> verifyOneTimePassword([FromBody] OTPVerifyRequest request)
+        {
+            if (String.IsNullOrEmpty(request.UserID.ToString()))
+            {
+                VerifyOTPResponse errorResponse = new VerifyOTPResponse
+                {
+                    Code = 300,
+                    Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "UserID",
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(300, errorResponse);
+            }
+
+            if (request.UserID <= 0)
+            {
+                VerifyOTPResponse errorResponse = new VerifyOTPResponse
+                {
+                    Code = 301,
+                    Message = APIErrorCodes.GENERATE_OPT_USERID_NEGATIVE_ERROR_MESSAGE,
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(301, errorResponse);
+            }
+
+            if (String.IsNullOrEmpty(request.DateTime.ToString()))
+            {
+                VerifyOTPResponse errorResponse = new VerifyOTPResponse
+                {
+                    Code = 302,
+                    Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "DateTime",
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(302, errorResponse);
+            }
+
+            if (!DateTime.TryParse(request.DateTime.ToString(), out DateTime date))
+            {
+                VerifyOTPResponse errorResponse = new VerifyOTPResponse
+                {
+                    Code = 303,
+                    Message = APIErrorCodes.GENERATE_OTP_DATETIME_NOT_VALID_ERROR_MESSAGE,
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(303, errorResponse);
+            }
+
+            if (String.IsNullOrEmpty(request.EnteredOTP))
+            {
+                VerifyOTPResponse errorResponse = new VerifyOTPResponse
+                {
+                    Code = 304,
+                    Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "Entered OTP",
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(304, errorResponse);
+            }
+
+            if (String.IsNullOrEmpty(request.ExpireDate.ToString()))
+            {
+                VerifyOTPResponse errorResponse = new VerifyOTPResponse
+                {
+                    Code = 305,
+                    Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "ExpireDate",
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(305, errorResponse);
+            }
+
+            if (!DateTime.TryParse(DateTimeOffset.FromUnixTimeSeconds((long)request.ExpireDate).ToString(), out DateTime date2))
+            {
+                VerifyOTPResponse errorResponse = new VerifyOTPResponse
+                {
+                    Code = 306,
+                    Message = APIErrorCodes.GENERATE_OTP_DATETIME_NOT_VALID_ERROR_MESSAGE,
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(306, errorResponse);
+            }
+
+            if (String.IsNullOrEmpty(request.OriginalOTP))
+            {
+                VerifyOTPResponse errorResponse = new VerifyOTPResponse
+                {
+                    Code = 307,
+                    Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "Original OTP",
+                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                };
+
+                return StatusCode(307, errorResponse);
+            }
+
+            try
+            {
+
+                VerifyOTPResponse response = await _userService.verifyOTP(request);
+
+                return Ok(response);
+
+            }catch(Exception e)
+            {
+                throw new NotImplementedException(e.Message);
+            }
         }
     }
 }

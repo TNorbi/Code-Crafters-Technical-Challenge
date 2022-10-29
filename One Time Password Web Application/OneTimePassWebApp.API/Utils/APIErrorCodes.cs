@@ -18,5 +18,7 @@
         public static readonly string GENERATE_OPT_USERID_NEGATIVE_ERROR_MESSAGE = "UserID is a negative value or equals 0. It should be a value greater than 0";
         public static readonly string GENERATE_OTP_DATETIME_NOT_VALID_ERROR_MESSAGE = "DateTime is not valid! Please give a valid DateTime value!";
         public static readonly string GENERATE_OTP_EXCEPTION_MESSAGE = "GENERATE_OTP request was unsuccessful, with the following error message: ";
+        public static readonly string VERIFY_OTP_WRONG_OTP_ERROR_MESSAGE = "Wrong OTP was given";
+        public static readonly string VERIFY_OTP_DATETIME_EXPIRED_ERROR_MESSAGE = "OTP expired after 30s";
     }
 }

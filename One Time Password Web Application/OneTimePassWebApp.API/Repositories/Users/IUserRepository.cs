@@ -1,4 +1,7 @@
-﻿namespace OneTimePassWebApp.API.Repositories.Users
+﻿using OneTimePassWebApp.API.Data.Models;
+using OneTimePassWebApp.API.Data.Requests.OTP;
+
+namespace OneTimePassWebApp.API.Repositories.Users
 {
     public interface IUserRepository
     {
@@ -12,5 +15,7 @@
         public Task<Data.Models.DTOs.Users.UserLoginDTO?> loginUser(Data.Models.Users user);
 
         public Task<String?> generateOTP(int userID);
+
+        public Task<OTPCheckers?> verifyOTP(OTPVerifyRequest request);
     }
 }

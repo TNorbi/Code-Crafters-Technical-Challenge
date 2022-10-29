@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OneTimePassWebApp.API.Data;
+using OneTimePassWebApp.API.Data.Models;
 using OneTimePassWebApp.API.Data.Models.DTOs.Users;
+using OneTimePassWebApp.API.Data.Requests.OTP;
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Cryptography;
 
 namespace OneTimePassWebApp.API.Repositories.Users
@@ -215,6 +219,79 @@ namespace OneTimePassWebApp.API.Repositories.Users
             var result = System.Text.Encoding.UTF8.GetString(encryptedOTP);
 
             return result;
+        }
+
+        public async Task<OTPCheckers?> verifyOTP(OTPVerifyRequest request)
+        {
+            OTPCheckers checkers = new OTPCheckers();
+
+            try
+            {
+                var searchUser = await _context.Users.FindAsync(request.UserID);
+
+                if(searchUser == null)
+                {
+                    return null;
+                }
+
+                //at kell alakitsam a DateTime-ot Timestampe
+                var timestampOfDate = request.DateTime.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+
+                //Utana meg kell nezzem, ha a ket timestamp kulonbsege <= 30s
+                if(timestampOfDate - request.ExpireDate <= 30)
+                {
+                    //ha <= akkor megnezem hogy a ket OTP jo-e vagy sem
+                    //decrypt mind2-re
+                    var enteredOTP_decrypted =decryptOTP(System.Text.Encoding.UTF8.GetBytes(request.EnteredOTP));
+                    var originalOTP_decrypted = decryptOTP(System.Text.Encoding.UTF8.GetBytes(request.OriginalOTP));
+
+                    if (enteredOTP_decrypted == originalOTP_decrypted)
+                    {
+                        //ha jo akkor true megy vissza
+                        checkers.IsOTP = true;
+                        checkers.isDateExpired = false;
+                    }
+                    else {
+                        checkers.IsOTP = false;
+                        checkers.isDateExpired = false;
+                    }
+                }
+                else
+                {
+                    checkers.IsOTP = false;
+                    checkers.isDateExpired = true;
+                }
+
+                return checkers;
+
+            }catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        private string decryptOTP(byte[] encryptedOTP)
+        {
+            string decryptedOTP="";
+
+            using(Aes aes = Aes.Create())
+            {
+                // Create a decryptor    
+                ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+
+                using (MemoryStream memoryStream = new MemoryStream(encryptedOTP))
+                {
+                    // Create crypto stream    
+                    using (CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
+                    {
+                        // Read crypto stream    
+                        using (StreamReader reader = new StreamReader(cryptoStream))
+                            decryptedOTP = reader.ReadToEnd();
+                    }
+                }
+            }
+
+            return decryptedOTP;
         }
     }
 }
