@@ -1,0 +1,39 @@
+﻿@using One_Time_Password_Web_Application.Data.Models.Login
+
+<EditForm Model="@loginModel" style="text-align:center">
+    <div>
+        <br /><br /><br /><br /><br />
+    </div>
+
+    <div>
+        <h3 style="font-weight:bold; color:black;">OTP WebApp Login</h3>
+    </div>
+
+    <div>
+        <br />
+    </div>
+
+    <div class="col-8 row" style="margin:auto; padding:10px">
+        <InputText class="form-control col-8" @bind-Value="loginModel.UserName" placeholder="Username"></InputText>
+    </div>
+
+    <br />
+
+    <div class="col-8 row" style="margin:auto; padding:10px">
+        <InputText class="form-control col-8" @bind-Value="loginModel.Password" placeholder="Password"></InputText>
+    </div>
+
+    <br />
+
+    <button type="submit" @onclick="loginUser">Login</button>
+    <a href="/register" style="padding-left: 15px;">Register</a>
+</EditForm>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+
+    public void loginUser()
+    {
+        //here should come the login logic from API
+    }
+}

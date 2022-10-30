@@ -1,0 +1,49 @@
+﻿@page "/register"
+
+@using One_Time_Password_Web_Application.Data.Models.Register
+
+<h1 style="text-align:center">One Time Password (OTP) Challenge</h1>
+
+<EditForm Model="@registerModel" style="text-align:center">
+    <div>
+        <br /><br /><br /><br /><br />
+    </div>
+
+    <div>
+        <h3 style="font-weight:bold; color:black;">OTP WebApp Registration</h3>
+    </div>
+
+    <div>
+        <br />
+    </div>
+
+    <div class="col-8 row" style="margin:auto; padding:10px">
+        <InputText class="form-control col-8" @bind-Value="registerModel.Username" placeholder="Username"></InputText>
+    </div>
+
+    <br />
+
+    <div class="col-8 row" style="margin:auto; padding:10px">
+        <InputText class="form-control col-8" @bind-Value="registerModel.Password" placeholder="Password"></InputText>
+    </div>
+
+    <br />
+
+    <div class="col-8 row" style="margin:auto; padding:10px">
+        <InputText class="form-control col-8" @bind-Value="registerModel.ConfirmPassword" placeholder="Confirm Password"></InputText>
+    </div>
+
+    <br />
+
+    <button type="submit" @onclick="registerUser">Submit</button>
+    <a href="/" style="padding-left: 15px;">Already have an account? Click here to login</a>
+</EditForm>
+
+@code {
+    private RegisterModel registerModel = new RegisterModel();
+
+    public void registerUser()
+    {
+        //here should come the login logic from API
+    }
+}
