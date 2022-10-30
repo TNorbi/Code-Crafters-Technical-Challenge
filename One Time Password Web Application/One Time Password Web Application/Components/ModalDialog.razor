@@ -1,0 +1,72 @@
+﻿@using System.Timers
+
+<div class="modal fade show" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@Title</h4>
+                <button type="button" class="close" @onclick="@ModalCancel">&times;</button>
+            </div>
+            <div class="modal-body" style="margin:auto; padding:10px; text-align:center">
+                <p>@Text</p>
+                @*<p>@timer</p>*@
+                <h5 style="font-weight:bold; color:black">@OTP</h5>
+                <input type="text" placeholder="Enter your OTP here" maxlength="@OTP.Length" @bind="InputOTP" />
+            </div>
+           <div class="modal-footer">
+                <button @onclick = "onSubmit">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code{
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public string Text { get; set; }
+    //private int timer = 30;
+
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter]
+    public string OTP { get; set; }
+
+    private Task ModalCancel(){
+        return OnClose.InvokeAsync(false);
+    }
+
+    private string InputOTP { get; set; }
+
+    private void onSubmit(){
+
+    }
+
+    /*protected override void OnInitialized()
+        {
+        private static System.Timers.Timer Timer = new System.Timers.Timer(1000);
+        Timer.Elapsed += CountDownTimer;
+        Timer.Enabled = true;
+    }
+
+    public void CountDownTimer(Object source, ElapsedEventArgs e)
+        {
+        if (timer > 0)
+            {
+        timer -= 1;
+        }
+        else
+            {
+            aTimer.Enabled = false;
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    private Task ModalCancel()
+        {
+        return OnClose.InvokeAsync(false);
+    }*/
+}

@@ -100,9 +100,6 @@ namespace OneTimePassWebApp.API.Repositories.Users
             {
                 PasswordHasher<string> passwordHasher = new PasswordHasher<string>();
 
-                //var searchUser = await _context.Users.Where(x => x.UserName == user.UserName).FirstOrDefaultAsync();
-                //var searchUser = await _context.Users.Where(x => x.UserName.Equals(user.)).FirstOrDefaultAsync();
-
                 var searchUser = await _context.Users.Where(x => EF.Functions.Collate(x.UserName, "SQL_Latin1_General_CP1_CS_AS") == user.UserName).FirstOrDefaultAsync();
 
                 if (searchUser != null)

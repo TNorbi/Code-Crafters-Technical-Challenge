@@ -1,4 +1,6 @@
-﻿@using One_Time_Password_Web_Application.Data.Models.Login
+﻿@using One_Time_Password_Web_Application.Components
+@using One_Time_Password_Web_Application.Data.AES
+@using One_Time_Password_Web_Application.Data.Models.Login
 @using One_Time_Password_Web_Application.Data.Models.API_Responses
 
 <EditForm Model="@loginModel" style="text-align:center" OnValidSubmit="HandleValidSubmit">
@@ -34,9 +36,24 @@
 
 </EditForm>
 
+@if(showDialog){
+    //ide kene a dialog ablak..talan databinding is
+    <ModalDialog Title="One Time Password Authentication"
+             Text = "Please enter your OTP below! It will expire after 30 seconds!"
+        OTP="@decrypted_OTP"
+        OnClose="@OnModalDialogClose"></ModalDialog>
+}
+
 @code {
     private LoginModel loginModel = new LoginModel();
     private HttpClient client = new HttpClient();
+    private bool showDialog = false;
+    private string decrypted_OTP;
+
+    private void OnModalDialogClose(bool value){
+        showDialog = false;
+        StateHasChanged();
+    }
 
     public async Task HandleValidSubmit(){
         await loginUser();
@@ -44,12 +61,65 @@
 
     public async Task loginUser()
     {
-        //here should come the login logic from API
-        var result = await client.PostAsJsonAsync("https://localhost:7181/api/User/login-user", loginModel);
+        var response = await client.PostAsJsonAsync("https://localhost:7181/api/User/login-user", loginModel);
 
-        var asd = await result.Content.ReadFromJsonAsync<LoginResponse>();
+        var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
 
-        if(asd != null){
+        if(loginResponse != null){
+
+            if(loginResponse.Code == 200){
+                //here I should generate OTP from API 
+
+                GenerateOTPModel generateOTPModel = new GenerateOTPModel {
+                        UserID = loginResponse.User!.UserID,
+                        DateTime = DateTime.UtcNow
+                };
+
+                response = await client.PostAsJsonAsync("https://localhost:7181/api/User/generate-one-time-password", generateOTPModel);
+
+                var generateOTPResponse = await response.Content.ReadFromJsonAsync<GenerateOTPResponse>();
+
+                if(generateOTPResponse != null){
+
+                    if(generateOTPResponse.Code == 200){
+                        decrypted_OTP = AesEncryptDecrypt.DecryptUsingCBC(generateOTPResponse.OTP!).TrimEnd(new Char[] {'\0'});
+                        showDialog = true;
+                        StateHasChanged();
+                    }
+                    else if (generateOTPResponse.Code == 300){
+                        //UserID missing
+                    }
+                    else if(generateOTPResponse.Code == 301){
+                        //UserID negative
+                    }
+                    else if(generateOTPResponse.Code == 302){
+                        //Datetime missing
+                    }
+                    else if(generateOTPResponse.Code == 303){
+                        //Datetime not valid
+                    }
+                    else if(generateOTPResponse.Code == 304){
+                        //User with given userID doesn't exist in database
+                    }
+                    else{
+                        //Exception error
+                    }
+                }
+
+                //showDialog = false;
+            }
+            else if(loginResponse.Code == 300){
+                //UserName missing
+            }
+            else if(loginResponse.Code == 301){
+                //Password missing
+            }
+            else if(loginResponse.Code == 302){
+                //User doesnt exists with given username or password
+            }
+            else{
+                //Exception error
+            }
 
         }
 
