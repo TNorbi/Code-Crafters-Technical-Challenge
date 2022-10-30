@@ -11,5 +11,10 @@ namespace OneTimePassWebApp.API.Data
         public WebAppDbContext([NotNullAttribute] DbContextOptions options): base(options)
         {
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.UseCollation("SQL_Latin1_General_CP1_CS_AS");
+        } 
     }
 }

@@ -1,6 +1,8 @@
 ﻿@using One_Time_Password_Web_Application.Data.Models.Login
+@using One_Time_Password_Web_Application.Data.Models.API_Responses
 
-<EditForm Model="@loginModel" style="text-align:center">
+<EditForm Model="@loginModel" style="text-align:center" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
     <div>
         <br /><br /><br /><br /><br />
     </div>
@@ -15,25 +17,41 @@
 
     <div class="col-8 row" style="margin:auto; padding:10px">
         <InputText class="form-control col-8" @bind-Value="loginModel.UserName" placeholder="Username"></InputText>
+        <ValidationMessage For="@(()=> loginModel.UserName)"/>
     </div>
 
     <br />
 
     <div class="col-8 row" style="margin:auto; padding:10px">
         <InputText class="form-control col-8" type="password" @bind-Value="loginModel.Password" placeholder="Password"></InputText>
+        <ValidationMessage For="@(()=> loginModel.Password)"/>
     </div>
 
     <br />
 
-    <button type="submit" @onclick="loginUser">Login</button>
+    <button type="submit">Login</button>
     <a href="/register" style="padding-left: 15px;">Register</a>
+
 </EditForm>
 
 @code {
     private LoginModel loginModel = new LoginModel();
+    private HttpClient client = new HttpClient();
 
-    public void loginUser()
+    public async Task HandleValidSubmit(){
+        await loginUser();
+    }
+
+    public async Task loginUser()
     {
         //here should come the login logic from API
+        var result = await client.PostAsJsonAsync("https://localhost:7181/api/User/login-user", loginModel);
+
+        var asd = await result.Content.ReadFromJsonAsync<LoginResponse>();
+
+        if(asd != null){
+
+        }
+
     }
 }

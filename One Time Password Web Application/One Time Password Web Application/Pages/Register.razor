@@ -42,29 +42,17 @@
     <button type="submit">Submit</button>
     <a href="/" style="padding-left: 15px;">Already have an account? Click here to login</a>
 
-    <div>
-        @if (displayValidationErrorMessages){
-            <div class="col-md-4" style="margin-top:10px">
-                <label>IS GOOD!</label>
-                    
-            </div>
-                displayValidationErrorMessages = false;
-        }
-    </div>
-    
 </EditForm>
 
 @code {
     private RegisterModel registerModel = new RegisterModel();
-    private bool displayValidationErrorMessages = false;
-
-    public void registerUser()
-    {
-        //here should come the login logic from API
-        displayValidationErrorMessages = true;
-    }
 
     public void HandleValidSubmit(){
         registerUser();
+    }
+
+    public void registerUser()
+    {
+        //here should come the register logic from API
     }
 }
