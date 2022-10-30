@@ -7,7 +7,7 @@ namespace OneTimePassWebApp.API.Data.Responses.OTP
     {
         public int Code { get; set; }
         public string Message { get; set; }
-        public double Timestamp { get; set; }
+        public long Timestamp { get; set; }
 
         [JsonIgnore]
         public OTPCheckers? Checkers { get; set; }

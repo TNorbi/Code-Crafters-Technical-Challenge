@@ -201,13 +201,13 @@ namespace OneTimePassWebApp.API.Services.Users
                     response.Code = 200;
                     response.Message = APISuccessCodes.GENERATE_OTP_SUCCES_MESSAGE;
                     DateTime expireDate = request.DateTime.AddSeconds(30);
-                    response.Timestamp = expireDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    response.Timestamp = ((DateTimeOffset)expireDate).ToUnixTimeSeconds();
                 }
                 else
                 {
                     response.Code = 304;
                     response.Message = APIErrorCodes.GET_USER_BY_USERID_NULL_MESSAGE;
-                    response.Timestamp = request.DateTime.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    response.Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
                 }
 
                 return response;
@@ -230,6 +230,7 @@ namespace OneTimePassWebApp.API.Services.Users
                 {
                     response.Code = 309;
                     response.Message = APIErrorCodes.GET_USER_BY_USERID_NULL_MESSAGE;
+                    response.Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
                     return response;
                 }
 
@@ -238,6 +239,7 @@ namespace OneTimePassWebApp.API.Services.Users
                 {
                     response.Code = 200;
                     response.Message = APISuccessCodes.VERIFY_OTP_SUCCES_MESSAGE;
+                    response.Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
                 }
                 else
                 {
@@ -245,11 +247,13 @@ namespace OneTimePassWebApp.API.Services.Users
                     {
                         response.Code = 309;
                         response.Message = APIErrorCodes.VERIFY_OTP_DATETIME_EXPIRED_ERROR_MESSAGE;
+                        response.Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
                     }
                     else
                     {
                         response.Code = 310;
                         response.Message = APIErrorCodes.VERIFY_OTP_WRONG_OTP_ERROR_MESSAGE;
+                        response.Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
                     }
                 }
 

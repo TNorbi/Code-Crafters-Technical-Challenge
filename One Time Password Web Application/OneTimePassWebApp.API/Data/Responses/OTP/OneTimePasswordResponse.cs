@@ -7,6 +7,6 @@
 
         public string? OTP { get; set; }
 
-        public double Timestamp { get; set; }
+        public long Timestamp { get; set; }
     }
 }

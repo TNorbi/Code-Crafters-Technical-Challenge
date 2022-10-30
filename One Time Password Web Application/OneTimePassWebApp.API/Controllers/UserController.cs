@@ -199,19 +199,19 @@ namespace OneTimePassWebApp.API.Controllers
                 {
                     Code = 300,
                     Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "UserID",
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(300, errorResponse);
             }
 
-            if(request.UserID <= 0)
+            if (request.UserID <= 0)
             {
                 OneTimePasswordResponse errorResponse = new OneTimePasswordResponse
                 {
                     Code = 301,
                     Message = APIErrorCodes.GENERATE_OPT_USERID_NEGATIVE_ERROR_MESSAGE,
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(301, errorResponse);
@@ -223,19 +223,19 @@ namespace OneTimePassWebApp.API.Controllers
                 {
                     Code = 302,
                     Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "DateTime",
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(302, errorResponse);
             }
 
-            if(!DateTime.TryParse(request.DateTime.ToString(), out DateTime date))
+            if (!DateTime.TryParse(request.DateTime.ToString(), out DateTime date))
             {
                 OneTimePasswordResponse errorResponse = new OneTimePasswordResponse
                 {
                     Code = 303,
                     Message = APIErrorCodes.GENERATE_OTP_DATETIME_NOT_VALID_ERROR_MESSAGE,
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(303, errorResponse);
@@ -245,22 +245,21 @@ namespace OneTimePassWebApp.API.Controllers
             {
                 OneTimePasswordResponse response = await _userService.generateOTP(request);
 
-                if(response.Code == 200)
+                if (response.Code == 200)
                 {
                     return Ok(response);
                 }
 
-                //return StatusCode(response.Code, response); //response body doesn't appear for some reason, only the response code
                 return Ok(response);
 
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 OneTimePasswordResponse errorResponse = new OneTimePasswordResponse
                 {
                     Code = 400,
                     Message = APIErrorCodes.GENERATE_OTP_EXCEPTION_MESSAGE + e.Message,
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(400, errorResponse);
@@ -276,7 +275,7 @@ namespace OneTimePassWebApp.API.Controllers
                 {
                     Code = 300,
                     Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "UserID",
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(300, errorResponse);
@@ -288,7 +287,7 @@ namespace OneTimePassWebApp.API.Controllers
                 {
                     Code = 301,
                     Message = APIErrorCodes.GENERATE_OPT_USERID_NEGATIVE_ERROR_MESSAGE,
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(301, errorResponse);
@@ -300,7 +299,7 @@ namespace OneTimePassWebApp.API.Controllers
                 {
                     Code = 302,
                     Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "DateTime",
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(302, errorResponse);
@@ -312,7 +311,7 @@ namespace OneTimePassWebApp.API.Controllers
                 {
                     Code = 303,
                     Message = APIErrorCodes.GENERATE_OTP_DATETIME_NOT_VALID_ERROR_MESSAGE,
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(303, errorResponse);
@@ -324,7 +323,7 @@ namespace OneTimePassWebApp.API.Controllers
                 {
                     Code = 304,
                     Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "Entered OTP",
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(304, errorResponse);
@@ -336,7 +335,7 @@ namespace OneTimePassWebApp.API.Controllers
                 {
                     Code = 305,
                     Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "ExpireDate",
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(305, errorResponse);
@@ -348,7 +347,7 @@ namespace OneTimePassWebApp.API.Controllers
                 {
                     Code = 306,
                     Message = APIErrorCodes.GENERATE_OTP_DATETIME_NOT_VALID_ERROR_MESSAGE,
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(306, errorResponse);
@@ -360,7 +359,7 @@ namespace OneTimePassWebApp.API.Controllers
                 {
                     Code = 307,
                     Message = APIErrorCodes.MISSING_BODY_ERROR_MESSAGE + "Original OTP",
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(307, errorResponse);
@@ -373,13 +372,14 @@ namespace OneTimePassWebApp.API.Controllers
 
                 return Ok(response);
 
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 VerifyOTPResponse errorResponse = new VerifyOTPResponse
                 {
                     Code = 500,
                     Message = APIErrorCodes.VERIFY_OTP_EXCEPTION_MESSAGE + e.Message,
-                    Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                    Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()
                 };
 
                 return StatusCode(500, errorResponse);

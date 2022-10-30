@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OneTimePassWebApp.API.Data;
+using OneTimePassWebApp.API.Data.AES;
 using OneTimePassWebApp.API.Data.Models;
 using OneTimePassWebApp.API.Data.Models.DTOs.Users;
 using OneTimePassWebApp.API.Data.Requests.OTP;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Cryptography;
 
 namespace OneTimePassWebApp.API.Repositories.Users
 {
@@ -142,9 +140,6 @@ namespace OneTimePassWebApp.API.Repositories.Users
                     return null;
                 }
 
-                //valahogy igy kene asszem
-                //string OTP = createNewOTP(result.email)
-
                 string OTP = createNewOTP();
 
                 return OTP;
@@ -179,46 +174,9 @@ namespace OneTimePassWebApp.API.Repositories.Users
                 OTP += character;
             }
 
-            string? OTP_encrypted = encryptOTP(OTP);
-
-            if (OTP_encrypted == null)
-            {
-                throw new Exception("ERROR at createNewOTP method: OTP encrypted is null!");
-            }
+            string OTP_encrypted = AesEncryptDecrypt.EncryptUsingCBC(OTP);
 
             return OTP_encrypted;
-        }
-
-        private string? encryptOTP(string OTP)
-        {
-            byte[] encryptedOTP;
-
-            //Using the built-in AES Encryption for OTP
-            using (var aes = Aes.Create())
-            {
-                ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
-
-                using (MemoryStream memoryStream = new MemoryStream())
-                {
-                    // Create crypto stream using the CryptoStream class. This class is the key to encryption    
-                    // and encrypts and decrypts data from any given stream. In this case, we will pass a memory stream    
-                    // to encrypt    
-                    using (CryptoStream cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
-                    {
-                        // Create StreamWriter and write data to a stream    
-                        using (StreamWriter streamWriter = new StreamWriter(cryptoStream))
-                        {
-                            streamWriter.Write(OTP);
-                        }
-
-                        encryptedOTP = memoryStream.ToArray();
-                    }
-                }
-            }
-
-            var result = System.Text.Encoding.UTF8.GetString(encryptedOTP);
-
-            return result;
         }
 
         public async Task<OTPCheckers?> verifyOTP(OTPVerifyRequest request)
@@ -229,29 +187,25 @@ namespace OneTimePassWebApp.API.Repositories.Users
             {
                 var searchUser = await _context.Users.FindAsync(request.UserID);
 
-                if(searchUser == null)
+                if (searchUser == null)
                 {
                     return null;
                 }
 
-                //at kell alakitsam a DateTime-ot Timestampe
-                var timestampOfDate = request.DateTime.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                var expireDate = DateTimeOffset.FromUnixTimeSeconds(request.ExpireDate);
 
-                //Utana meg kell nezzem, ha a ket timestamp kulonbsege <= 30s
-                if(timestampOfDate - request.ExpireDate <= 30)
+                if (request.DateTime <= expireDate)
                 {
-                    //ha <= akkor megnezem hogy a ket OTP jo-e vagy sem
-                    //decrypt mind2-re
-                    var enteredOTP_decrypted =decryptOTP(System.Text.Encoding.UTF8.GetBytes(request.EnteredOTP));
-                    var originalOTP_decrypted = decryptOTP(System.Text.Encoding.UTF8.GetBytes(request.OriginalOTP));
+                    var enteredOTP_decrypted = AesEncryptDecrypt.DecryptUsingCBC(request.EnteredOTP);
+                    var originalOTP_decrypted = AesEncryptDecrypt.DecryptUsingCBC(request.OriginalOTP);
 
                     if (enteredOTP_decrypted == originalOTP_decrypted)
                     {
-                        //ha jo akkor true megy vissza
                         checkers.IsOTP = true;
                         checkers.isDateExpired = false;
                     }
-                    else {
+                    else
+                    {
                         checkers.IsOTP = false;
                         checkers.isDateExpired = false;
                     }
@@ -264,34 +218,11 @@ namespace OneTimePassWebApp.API.Repositories.Users
 
                 return checkers;
 
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
-        }
-
-        private string decryptOTP(byte[] encryptedOTP)
-        {
-            string decryptedOTP="";
-
-            using(Aes aes = Aes.Create())
-            {
-                // Create a decryptor    
-                ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-
-                using (MemoryStream memoryStream = new MemoryStream(encryptedOTP))
-                {
-                    // Create crypto stream    
-                    using (CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
-                    {
-                        // Read crypto stream    
-                        using (StreamReader reader = new StreamReader(cryptoStream))
-                            decryptedOTP = reader.ReadToEnd();
-                    }
-                }
-            }
-
-            return decryptedOTP;
         }
     }
 }
