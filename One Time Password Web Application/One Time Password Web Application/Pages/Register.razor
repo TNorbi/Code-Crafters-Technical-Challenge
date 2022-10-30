@@ -4,7 +4,8 @@
 
 <h1 style="text-align:center">One Time Password (OTP) Challenge</h1>
 
-<EditForm Model="@registerModel" style="text-align:center">
+<EditForm Model="@registerModel" style="text-align:center" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
     <div>
         <br /><br /><br /><br /><br />
     </div>
@@ -19,31 +20,51 @@
 
     <div class="col-8 row" style="margin:auto; padding:10px">
         <InputText class="form-control col-8" @bind-Value="registerModel.Username" placeholder="Username"></InputText>
+        <ValidationMessage For="@(() => registerModel.Username)"/>
     </div>
 
     <br />
 
     <div class="col-8 row" style="margin:auto; padding:10px">
-        <InputText class="form-control col-8" @bind-Value="registerModel.Password" placeholder="Password"></InputText>
+        <InputText class="form-control col-8" type="password" @bind-Value="registerModel.Password" placeholder="Password"></InputText>
+        <ValidationMessage For="@(()=> registerModel.Password)"/>
     </div>
 
     <br />
 
     <div class="col-8 row" style="margin:auto; padding:10px">
-        <InputText class="form-control col-8" @bind-Value="registerModel.ConfirmPassword" placeholder="Confirm Password"></InputText>
+        <InputText class="form-control col-8" type="password" @bind-Value="registerModel.ConfirmPassword" placeholder="Confirm Password"></InputText>
+        <ValidationMessage For="@(()=> registerModel.ConfirmPassword)"/>
     </div>
 
     <br />
 
-    <button type="submit" @onclick="registerUser">Submit</button>
+    <button type="submit">Submit</button>
     <a href="/" style="padding-left: 15px;">Already have an account? Click here to login</a>
+
+    <div>
+        @if (displayValidationErrorMessages){
+            <div class="col-md-4" style="margin-top:10px">
+                <label>IS GOOD!</label>
+                    
+            </div>
+                displayValidationErrorMessages = false;
+        }
+    </div>
+    
 </EditForm>
 
 @code {
     private RegisterModel registerModel = new RegisterModel();
+    private bool displayValidationErrorMessages = false;
 
     public void registerUser()
     {
         //here should come the login logic from API
+        displayValidationErrorMessages = true;
+    }
+
+    public void HandleValidSubmit(){
+        registerUser();
     }
 }
