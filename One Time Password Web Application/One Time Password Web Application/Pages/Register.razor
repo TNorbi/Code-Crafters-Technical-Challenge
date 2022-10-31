@@ -1,4 +1,5 @@
 ﻿@page "/register"
+@inject NavigationManager NavManager
 
 @using One_Time_Password_Web_Application.Data.Models.API_Responses
 @using One_Time_Password_Web_Application.Data.Models.Register
@@ -45,8 +46,15 @@
 
 </EditForm>
 
+@if(registerSuccess){
+    <div style="margin:auto; padding:10px">
+        <p style="text-align:center; font-weight:bold; color:green">Registration successful! You'll be redirected to login page in 5 seconds!</p>
+    </div>
+}
+
 @code {
     private RegisterModel registerModel = new RegisterModel();
+    private bool registerSuccess = false;
 
     public async Task HandleValidSubmit(){
         await registerUser();
@@ -68,6 +76,11 @@
 
             if(registerResponse.Code == 200){
                 //register success, should go back to login page
+                registerSuccess = true;
+                StateHasChanged();
+                await Task.Delay(5000);
+                registerSuccess = false;
+                NavManager.NavigateTo("/");
             }
             else if (registerResponse.Code == 300)
             {
