@@ -1,4 +1,7 @@
 ﻿@using System.Timers
+@using One_Time_Password_Web_Application.Data.AES
+@using One_Time_Password_Web_Application.Data.Models.API_Responses
+@using One_Time_Password_Web_Application.Data.Models.Login
 
 <div class="modal fade show" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
     <div class="modal-dialog">
@@ -9,7 +12,6 @@
             </div>
             <div class="modal-body" style="margin:auto; padding:10px; text-align:center">
                 <p>@Text</p>
-                @*<p>@timer</p>*@
                 <h5 style="font-weight:bold; color:black">@OTP</h5>
                 <input type="text" placeholder="Enter your OTP here" maxlength="@OTP.Length" @bind="InputOTP" />
             </div>
@@ -26,7 +28,6 @@
 
     [Parameter]
     public string Text { get; set; }
-    //private int timer = 30;
 
     [Parameter]
     public EventCallback<bool> OnClose { get; set; }
@@ -34,39 +35,68 @@
     [Parameter]
     public string OTP { get; set; }
 
+    [Parameter]
+    public int UserID { get; set; }
+
+    [Parameter]
+    public GenerateOTPResponse GenerateOTPResponse{ get; set; }
+
+    private string InputOTP { get; set; }
+
     private Task ModalCancel(){
         return OnClose.InvokeAsync(false);
     }
 
-    private string InputOTP { get; set; }
+    private async Task onSubmit(){
+        HttpClient client = new HttpClient();
+        VerifyOTPModel verifyOTPModel = new VerifyOTPModel {
+                UserID = UserID,
+                DateTime = DateTime.UtcNow,
+                EnteredOTP = AesEncryptDecrypt.EncryptUsingCBC(InputOTP),
+                ExpireDate = GenerateOTPResponse.Timestamp,
+                OriginalOTP = GenerateOTPResponse.OTP!
+            };
 
-    private void onSubmit(){
+        var response = await client.PostAsJsonAsync("https://localhost:7181/api/User/verify-one-time-password", verifyOTPModel);
 
-    }
+        var verifyOTPResponse = await response.Content.ReadFromJsonAsync<VerifyOTPResponse>();
 
-    /*protected override void OnInitialized()
-        {
-        private static System.Timers.Timer Timer = new System.Timers.Timer(1000);
-        Timer.Elapsed += CountDownTimer;
-        Timer.Enabled = true;
-    }
+        if (verifyOTPResponse != null){
 
-    public void CountDownTimer(Object source, ElapsedEventArgs e)
-        {
-        if (timer > 0)
+            if (verifyOTPResponse.Code == 200){
+                //succes !!!!
+            }
+            else if(verifyOTPResponse.Code == 300){
+                //UserID missing
+            }
+            else if(verifyOTPResponse.Code == 301){
+                //UserID negative
+            }
+            else if (verifyOTPResponse.Code == 302)
             {
-        timer -= 1;
-        }
-        else
+                //Datetime missing
+            }
+            else if (verifyOTPResponse.Code == 303)
             {
-            aTimer.Enabled = false;
+                //Datetime is not valid
+            }
+            else if (verifyOTPResponse.Code == 304){
+                // Entered OTP missing
+            }
+            else if (verifyOTPResponse.Code == 305){
+                //ExpireDate is missing
+            }
+            else if (verifyOTPResponse.Code == 306){
+                //ExpireDate is not valid
+            }
+            else if (verifyOTPResponse.Code == 307)
+            {
+                //OriginalOTP is missing
+            }
+            else{
+                //exception
+            }
+
         }
-
-        InvokeAsync(StateHasChanged);
     }
-
-    private Task ModalCancel()
-        {
-        return OnClose.InvokeAsync(false);
-    }*/
 }

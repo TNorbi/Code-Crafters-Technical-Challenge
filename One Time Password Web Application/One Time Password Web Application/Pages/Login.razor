@@ -37,10 +37,11 @@
 </EditForm>
 
 @if(showDialog){
-    //ide kene a dialog ablak..talan databinding is
     <ModalDialog Title="One Time Password Authentication"
-             Text = "Please enter your OTP below! It will expire after 30 seconds!"
+        Text = "Please enter your OTP below! It will expire after 30 seconds!"
         OTP="@decrypted_OTP"
+        UserID="@loginResponse!.User!.UserID"
+        GenerateOTPResponse="@generateOTPResponse"
         OnClose="@OnModalDialogClose"></ModalDialog>
 }
 
@@ -49,6 +50,8 @@
     private HttpClient client = new HttpClient();
     private bool showDialog = false;
     private string decrypted_OTP;
+    private LoginResponse? loginResponse;
+    private GenerateOTPResponse? generateOTPResponse;
 
     private void OnModalDialogClose(bool value){
         showDialog = false;
@@ -63,7 +66,7 @@
     {
         var response = await client.PostAsJsonAsync("https://localhost:7181/api/User/login-user", loginModel);
 
-        var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+        loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
 
         if(loginResponse != null){
 
@@ -77,7 +80,7 @@
 
                 response = await client.PostAsJsonAsync("https://localhost:7181/api/User/generate-one-time-password", generateOTPModel);
 
-                var generateOTPResponse = await response.Content.ReadFromJsonAsync<GenerateOTPResponse>();
+                generateOTPResponse = await response.Content.ReadFromJsonAsync<GenerateOTPResponse>();
 
                 if(generateOTPResponse != null){
 
