@@ -228,7 +228,7 @@ namespace OneTimePassWebApp.API.Services.Users
 
                 if(response.Checkers == null)
                 {
-                    response.Code = 309;
+                    response.Code = 308;
                     response.Message = APIErrorCodes.GET_USER_BY_USERID_NULL_MESSAGE;
                     response.Timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
                     return response;

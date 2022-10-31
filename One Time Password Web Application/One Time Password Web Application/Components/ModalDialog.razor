@@ -51,6 +51,8 @@
     private string InputOTP { get; set; }
     private bool OtpSuccess = false;
     private VerifyOTPResponse? verifyOTPResponse;
+    private bool newOTPGenerated = false;
+    private GenerateOTPResponse? newGenerateOTPResponse;
 
     private Task ModalCancel(){
         return OnClose.InvokeAsync(false);
@@ -58,13 +60,34 @@
 
     private async Task onSubmit(){
         HttpClient client = new HttpClient();
-        VerifyOTPModel verifyOTPModel = new VerifyOTPModel {
-                UserID = UserID,
-                DateTime = DateTime.UtcNow,
-                EnteredOTP = AesEncryptDecrypt.EncryptUsingCBC(InputOTP),
-                ExpireDate = GenerateOTPResponse.Timestamp,
-                OriginalOTP = GenerateOTPResponse.OTP!
+
+        VerifyOTPModel verifyOTPModel;
+
+
+        if (newOTPGenerated)
+        {
+            verifyOTPModel = new VerifyOTPModel
+            {
+                    UserID = UserID,
+                    DateTime = DateTime.UtcNow,
+                    EnteredOTP = AesEncryptDecrypt.EncryptUsingCBC(InputOTP),
+                    ExpireDate = newGenerateOTPResponse!.Timestamp,
+                    OriginalOTP = newGenerateOTPResponse.OTP!
             };
+        }
+        else
+        {
+
+            verifyOTPModel = new VerifyOTPModel
+                {
+                    UserID = UserID,
+                    DateTime = DateTime.UtcNow,
+                    EnteredOTP = AesEncryptDecrypt.EncryptUsingCBC(InputOTP),
+                    ExpireDate = GenerateOTPResponse.Timestamp,
+                    OriginalOTP = GenerateOTPResponse.OTP!
+                };
+        }
+
 
         var response = await client.PostAsJsonAsync("https://localhost:7181/api/User/verify-one-time-password", verifyOTPModel);
 
@@ -74,6 +97,7 @@
 
             if (verifyOTPResponse.Code == 200){
                 OtpSuccess = true;
+                newOTPGenerated = false;
                 StateHasChanged();
             }
             else if(verifyOTPResponse.Code == 300){
@@ -103,10 +127,36 @@
             {
                 //OriginalOTP is missing
             }
-            else{
-                //exception
+            else if (verifyOTPResponse.Code == 308)
+            {
+                //User doesnt exists with given USERID
             }
+            else if (verifyOTPResponse.Code == 309 || verifyOTPResponse.Code == 310)
+            {
+                GenerateOTPModel generateOTPModel = new GenerateOTPModel
+                {
+                        UserID = UserID,
+                        DateTime = DateTime.UtcNow
+                };
 
+                response = await client.PostAsJsonAsync("https://localhost:7181/api/User/generate-one-time-password", generateOTPModel);
+
+                newGenerateOTPResponse = await response.Content.ReadFromJsonAsync<GenerateOTPResponse>();
+
+                if (newGenerateOTPResponse!.Code == 200)
+                {
+                    OTP = AesEncryptDecrypt.DecryptUsingCBC(newGenerateOTPResponse.OTP!).TrimEnd(new Char[] { '\0' });
+                }
+
+                newOTPGenerated = true;
+
+                Text = verifyOTPResponse.Message;
+                StateHasChanged();
+
+            }
+            else{
+                //exception error
+            }
         }
     }
 }
