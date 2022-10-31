@@ -11,12 +11,19 @@
                 <button type="button" class="close" @onclick="@ModalCancel">&times;</button>
             </div>
             <div class="modal-body" style="margin:auto; padding:10px; text-align:center">
-                <p>@Text</p>
-                <h5 style="font-weight:bold; color:black">@OTP</h5>
-                <input type="text" placeholder="Enter your OTP here" maxlength="@OTP.Length" @bind="InputOTP" />
+                @if(!OtpSuccess){
+                    <p>@Text</p>
+                    <h5 style="font-weight:bold; color:black">@OTP</h5>
+                    <input type="text" placeholder="Enter your OTP here" maxlength="@OTP.Length" @bind="InputOTP" />
+                }
+                else{
+                    <p>@verifyOTPResponse!.Message</p>
+                }
             </div>
            <div class="modal-footer">
-                <button @onclick = "onSubmit">Submit</button>
+                @if (!OtpSuccess){
+                    <button @onclick="onSubmit">Submit</button>
+                }
             </div>
         </div>
     </div>
@@ -42,6 +49,8 @@
     public GenerateOTPResponse GenerateOTPResponse{ get; set; }
 
     private string InputOTP { get; set; }
+    private bool OtpSuccess = false;
+    private VerifyOTPResponse? verifyOTPResponse;
 
     private Task ModalCancel(){
         return OnClose.InvokeAsync(false);
@@ -59,12 +68,13 @@
 
         var response = await client.PostAsJsonAsync("https://localhost:7181/api/User/verify-one-time-password", verifyOTPModel);
 
-        var verifyOTPResponse = await response.Content.ReadFromJsonAsync<VerifyOTPResponse>();
+        verifyOTPResponse = await response.Content.ReadFromJsonAsync<VerifyOTPResponse>();
 
         if (verifyOTPResponse != null){
 
             if (verifyOTPResponse.Code == 200){
-                //succes !!!!
+                OtpSuccess = true;
+                StateHasChanged();
             }
             else if(verifyOTPResponse.Code == 300){
                 //UserID missing
