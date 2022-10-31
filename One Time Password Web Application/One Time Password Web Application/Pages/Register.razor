@@ -1,5 +1,6 @@
 ﻿@page "/register"
 
+@using One_Time_Password_Web_Application.Data.Models.API_Responses
 @using One_Time_Password_Web_Application.Data.Models.Register
 
 <h1 style="text-align:center">One Time Password (OTP) Challenge</h1>
@@ -47,12 +48,49 @@
 @code {
     private RegisterModel registerModel = new RegisterModel();
 
-    public void HandleValidSubmit(){
-        registerUser();
+    public async Task HandleValidSubmit(){
+        await registerUser();
     }
 
-    public void registerUser()
+    public async Task registerUser()
     {
         //here should come the register logic from API
+        HttpClient client = new HttpClient();
+        RegisterDTO register = new RegisterDTO {
+                Username = registerModel.Username,
+                Password = registerModel.Password
+        };
+        var response = await client.PostAsJsonAsync("https://localhost:7181/api/User/register-new-user", register);
+
+        var registerResponse = await response.Content.ReadFromJsonAsync<RegisterResponse>();
+
+        if (registerResponse != null){
+
+            if(registerResponse.Code == 200){
+                //register success, should go back to login page
+            }
+            else if (registerResponse.Code == 300)
+            {
+                //username missing
+            }
+            else if (registerResponse.Code == 301){
+                //password missing
+            }
+            else if (registerResponse.Code == 302){
+                //password already exists
+            }
+            else if (registerResponse.Code == 303)
+            {
+                //ussername already exists
+            }
+            else if (registerResponse.Code == 304)
+            {
+                //Something went wrong during registration
+            }
+            else{
+                //exception error
+            }
+
+        }
     }
 }
